@@ -23,18 +23,33 @@ getData(fromBlock, toBlock)
 async function getData (fromBlock, toBlock) {
   try {
 
+
     let txs = await getTransactionsFromBlock(fromBlock - 1)
     let { txId } = txs[0]
     await getTransactions(txId, toBlock)
-    let data = Object.assign(DATA)
-    for (let d in data) {
-      data[d] = data[d].toString(10)
-    }
-    console.log(data)
+    printObj(DATA)
+    let diffData = await getBlockData(fromBlock, toBlock)
+    printObj(diffData)
   } catch (err) {
     console.error(err)
     process.exit(8)
   }
+}
+
+async function getBlockData (fromBlock, toBlock) {
+  try {
+    let [fromData, toData] = await Promise.all([getBlock(fromBlock), getBlock(toBlock)])
+    return getDiff(fromData, toData)
+  } catch (err) {
+    return Promise.reject(err)
+  }
+}
+
+function getDiff (from, to) {
+  let time = to.timestamp - from.timestamp
+  let difficulty = newBN(to.totalDifficulty).sub(newBN(from.totalDifficulty))
+  let hashrate = difficulty.div(newBN(time))
+  return { time, difficulty, hashrate }
 }
 
 async function getTransactions (next) {
@@ -68,6 +83,17 @@ async function getNextTransactions (next) {
     let path = `${url}/api?limit=500&module=transactions&action=getTransactions&prev=${next}`
     let res = await axios.get(path)
     let { data } = res
+    return data
+  } catch (err) {
+    return Promise.reject(err)
+  }
+}
+
+async function getBlock (hashOrNumber) {
+  try {
+    let path = `${url}/api?module=blocks&action=getBlock&hashOrNumber=${hashOrNumber}`
+    let res = await axios.get(path)
+    let { data } = res.data
     return data
   } catch (err) {
     return Promise.reject(err)
@@ -116,3 +142,11 @@ process.on('unhandledRejection', err => {
   console.error(err)
   process.exit(9)
 })
+
+function printObj (obj) {
+  let o = Object.assign({}, obj)
+  for (let p in o) {
+    o[p] = o[p].toString()
+  }
+  console.log(o)
+}
