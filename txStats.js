@@ -23,11 +23,9 @@ getData(fromBlock, toBlock)
 
 async function getData (fromBlock, toBlock) {
   try {
-
-
-    let txs = await getTransactionsFromBlock(fromBlock - 1)
-    let { txId } = txs[0]
-    await getTransactions(txId, toBlock)
+    let txs = await getTransactionsFromBlock(toBlock + 1)
+    let { txId } = txs[txs.length - 1]
+    await getTransactions(txId)
     printObj(DATA)
     let diffData = await getBlockData(fromBlock, toBlock)
     printObj(diffData)
@@ -56,13 +54,13 @@ function getDiff (from, to) {
 async function getTransactions (next) {
   try {
     let { pages, data } = await getNextTransactions(next)
+    let blockNumber = data.find(tx => tx.blockNumber > toBlock)
     getTxData(data.filter(tx => {
       let { blockNumber } = tx
       return blockNumber <= toBlock && blockNumber >= fromBlock
     }))
-    let blockNumber = data.find(tx => tx.blockNumber > toBlock)
-    if (!blockNumber && pages.next) return getNextTransactions(pages.next)
-
+    if (!blockNumber && pages.next) return getTransactions(pages.next)
+    else return
   } catch (err) {
     return Promise.reject(err)
   }
@@ -81,7 +79,7 @@ async function getTransactionsFromBlock (blockNumber) {
 
 async function getNextTransactions (next) {
   try {
-    let path = `${url}/api?limit=500&module=transactions&action=getTransactions&prev=${next}`
+    let path = `${url}/api?limit=500&module=transactions&action=getTransactions&next=${next}`
     let res = await axios.get(path)
     let { data } = res
     return data
