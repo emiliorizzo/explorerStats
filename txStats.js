@@ -15,6 +15,7 @@ const DATA = {
 
 
 if (!fromBlock || !toBlock || !url) help()
+if (fromBlock > toBlock) help(`'fromBlock' must be less than 'toBlock'`)
 
 console.log(`url: ${url}`)
 console.log(`from block: ${fromBlock} to block: ${toBlock}`)
@@ -125,7 +126,8 @@ function newBN (number) {
   return number
 }
 
-function help () {
+function help (msg) {
+  if (msg) console.error(`ERROR: ${msg}`)
   const myName = process.argv[1].split('/').pop()
   console.log('')
   console.log(`Usage:`)
