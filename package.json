@@ -1,0 +1,16 @@
+{
+  "name": "gasused",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "bn.js": "^5.1.1",
+    "rsk-utils": "git+https://github.com/rsksmart/rsk-utils.git"
+  }
+}

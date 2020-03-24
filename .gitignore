@@ -1,0 +1,9 @@
+node_modules
+/config.json
+/initial-config.json
+.vscode
+.node-xmlhttprequest-*
+src/tmp
+tmp
+coverage
+.nyc_output
